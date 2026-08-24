@@ -1,0 +1,51 @@
+# YAML-bound SQL contribution (ADR-023). Roles, not physical table names.
+# The API binds identifiers from w4h.tables and executes sql/compute.sql.
+
+kind: sql
+publisher: usc-infolab
+title: Compute METs (SQL)
+summary: >
+  Derive a mets_computed signal from mapped calories + weight via
+  parameterized SQL in Postgres. Works on Fitbit (1 min) and ICDE demo
+  (5 min) when sampling_interval is on the mapping.
+
+sql: sql/compute.sql
+
+requires:
+  - signal_type: calories
+    alias: calories
+    sql_alias: c
+    value: calories
+    unit: kcal
+  - signal_type: weight
+    alias: weight
+    sql_alias: w
+    value: weight_kg
+    unit: kg
+    missing: last_known_or_default
+    default_kg: 70
+
+produces:
+  - signal_type: mets_computed
+    value: mets
+    subject: id
+    time: ts
+    unit: MET
+    columns:
+      - name: id
+        type: text
+      - name: ts
+        type: timestamp
+      - name: mets
+        type: double precision
+      - name: weight_kg
+        type: double precision
+      - name: weight_is_default
+        type: boolean
+
+scalars:
+  default_weight_kg: 70
+  reference_interval_minutes: 15
+
+# Formula lives in sql/compute.sql — the API only binds identifiers.
+formula: calories / (weight_kg * 0.25)   # 0.25 per 15-minute reference interval
