@@ -49,3 +49,6 @@ scalars:
 
 # Formula lives in sql/compute.sql — the API only binds identifiers.
 formula: calories / (weight_kg * 0.25)   # 0.25 per 15-minute reference interval
+
+run:
+  materialize: true

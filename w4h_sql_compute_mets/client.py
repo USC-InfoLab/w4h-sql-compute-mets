@@ -66,13 +66,15 @@ class W4HClient:
         dataset_id: str,
         *,
         slug: str | None = None,
-        write_back: bool = False,
+        write_back: bool | None = None,
         interval_minutes: float | None = None,
         limit: int | None = None,
     ) -> dict:
-        """Ask the API to bind and execute a curated SQL contribution against this dataset."""
+        """Bind and execute a curated SQL contribution (sync). Empty body uses manifest defaults."""
         url = f"{self.base_url}/datasets/{dataset_id}/contributions/{slug or contribution_slug()}/sql"
-        payload: dict = {"write_back": write_back}
+        payload: dict = {}
+        if write_back is not None:
+            payload["write_back"] = write_back
         if interval_minutes is not None:
             payload["interval_minutes"] = interval_minutes
         if limit is not None:
